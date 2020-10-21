@@ -227,8 +227,8 @@ spec:
             envVarPrefix:
               description: EnvVarPrefix is the prefix for environment variables
               type: string
-            mountPathPrefix:
-              description: MountPathPrefix is the prefix for volume mount
+            mountPath:
+              description: MountPath is the path for volume mount
               type: string
             services:
               description: Services is used to identify multiple backing services.

@@ -3,6 +3,7 @@ package servicebinding
 import (
 	"context"
 	"fmt"
+	"path"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -27,16 +28,19 @@ import (
 // changeTriggerEnv hijacking environment in order to trigger a change
 const changeTriggerEnv = "ServiceBindingOperatorChangeTriggerEnvVar"
 
+const serviceBindingRoot = "SERVICE_BINDING_ROOT"
+
 // binder executes the "binding" act of updating different application kinds to use intermediary
 // secret. Those secrets should be offered as environment variables.
 type binder struct {
-	ctx        context.Context          // request context
-	dynClient  dynamic.Interface        // kubernetes dynamic api client
-	sbr        *v1alpha1.ServiceBinding // instantiated service binding request
-	volumeKeys []string                 // list of key names used in volume mounts
-	modifier   extraFieldsModifier      // extra modifier for CRDs before updating
-	restMapper meta.RESTMapper          // RESTMapper to convert GVR from GVK
-	logger     *log.Log                 // logger instance
+	ctx            context.Context          // request context
+	dynClient      dynamic.Interface        // kubernetes dynamic api client
+	sbr            *v1alpha1.ServiceBinding // instantiated service binding request
+	volumeKeys     []string                 // list of key names used in volume mounts
+	bindingRootEnv string
+	modifier       extraFieldsModifier // extra modifier for CRDs before updating
+	restMapper     meta.RESTMapper     // RESTMapper to convert GVR from GVK
+	logger         *log.Log            // logger instance
 }
 
 // extraFieldsModifier is useful for updating backend service which requires additional changes besides
@@ -164,8 +168,8 @@ func (b *binder) updateVolumes(volumes []interface{}) ([]interface{}, error) {
 	// FIXME(isuttonl): update should not bail out here since b.volumeKeys might change
 	log.Debug("Checking if binding volume is already defined...")
 	for _, v := range volumes {
-		volume := v.(corev1.Volume)
-		if name == volume.Name {
+		volume := v.(map[string]interface{})
+		if name == volume["name"] {
 			log.Debug("Volume is already defined!")
 			return volumes, nil
 		}
@@ -394,14 +398,24 @@ func (b *binder) updateContainer(container interface{}) (map[string]interface{},
 		return nil, err
 	}
 
-	// effectively binding the application with intermediary secret
-	c.EnvFrom = b.appendEnvFrom(c.EnvFrom, b.sbr.GetName())
+	if len(b.volumeKeys) == 0 {
+		// effectively binding the application with intermediary secret
+		c.EnvFrom = b.appendEnvFrom(c.EnvFrom, b.sbr.GetName())
+	}
 
 	secretRes := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "secrets"}
 	existingSecret, err := b.dynClient.Resource(secretRes).Namespace(b.sbr.GetNamespace()).Get(b.sbr.GetName(), metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
+
+	for _, e := range c.Env {
+		if e.Name == serviceBindingRoot {
+			b.bindingRootEnv = e.Value
+			break
+		}
+	}
+
 	// add a special environment variable that is only used to trigger a change in the declaration,
 	// attempting to force a side effect (in case of a Deployment, it would result in its Pods to be
 	// restarted)
@@ -436,11 +450,20 @@ func (b *binder) removeContainer(container interface{}) (map[string]interface{},
 // appendVolumeMounts append the binding volume in the template level.
 func (b *binder) appendVolumeMounts(volumeMounts []corev1.VolumeMount) []corev1.VolumeMount {
 	name := b.sbr.GetName()
-	mountPath := b.sbr.Spec.MountPathPrefix
+	mountPath := b.bindingRootEnv
+	fixedMountPath := false
 	if mountPath == "" {
-		mountPath = "/var/data"
+		mountPath = b.sbr.Spec.MountPath
+		if mountPath == "" {
+			mountPath = "/bindings"
+		} else {
+			fixedMountPath = true
+		}
 	}
 
+	if !fixedMountPath {
+		mountPath = path.Join(mountPath, name)
+	}
 	for _, v := range volumeMounts {
 		if name == v.Name {
 			return volumeMounts
