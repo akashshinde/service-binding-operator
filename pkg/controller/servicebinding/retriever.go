@@ -124,10 +124,10 @@ func (r *retriever) ProcessServiceContexts(
 		if err != nil {
 			return nil, nil, err
 		}
-		volumeKeys = append(volumeKeys, v...)
 		for k, v := range s {
 			envVars[k] = []byte(v)
 		}
+		volumeKeys = append(volumeKeys, v...)
 	}
 
 	envParser := newCustomEnvParser(envVarTemplates, customEnvVarCtx)

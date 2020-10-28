@@ -10,7 +10,12 @@ import (
 
 // ServiceBindingSpec defines the desired state of ServiceBinding
 type ServiceBindingSpec struct {
-	// MountPath is the prefix for volume mount
+	// MountPath is the path inside app container where bindings will be mounted
+	// If `SERVICE_BINDING_ROOT` env var is present, mountPath is ignored.
+	// If `SERVICE_BINDING_ROOT` is absent and mountPath is present, set `SERVICE_BINDING_ROOT` as mountPath value
+	// If `SERVICE_BINDING_ROOT` is absent but mounthPath is absent, set   SERVICE_BINDING_ROOT as `/bindings`
+	// When mountPath is used, the file will be mounted directly under that directory
+	// Otherwise it will be under `SERVICE_BINDING_ROOT`/<SERVICE-BINDING-NAME>
 	// +optional
 	MountPath string `json:"mountPath,omitempty"`
 
@@ -37,11 +42,6 @@ type ServiceBindingSpec struct {
 	DetectBindingResources *bool `json:"detectBindingResources,omitempty"`
 
 	// BindAsFiles flag enable binding values as files.
-	// If `SERVICE_BINDING_ROOT` env var is present, mountPath is ignored.
-	// If `SERVICE_BINDING_ROOT` is absent and mountPath is present, set `SERVICE_BINDING_ROOT` as mountPath value
-	// If `SERVICE_BINDING_ROOT` is absent but mounthPath is absent, set   SERVICE_BINDING_ROOT as `/bindings`
-	// When mountPath is used, the file will be mounted directly under that directory
-	// Otherwise it will be under `SERVICE_BINDING_ROOT`/<SERVICE-BINDING-NAME>
 	// +optional
 	BindAsFiles bool `json:"bindAsFiles,omitempty"`
 }
