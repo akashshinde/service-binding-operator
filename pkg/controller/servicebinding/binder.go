@@ -398,7 +398,7 @@ func (b *binder) updateContainer(container interface{}) (map[string]interface{},
 		return nil, err
 	}
 
-	if len(b.volumeKeys) == 0 {
+	if !b.sbr.Spec.BindAsFiles {
 		// effectively binding the application with intermediary secret
 		c.EnvFrom = b.appendEnvFrom(c.EnvFrom, b.sbr.GetName())
 	}
@@ -423,7 +423,9 @@ func (b *binder) updateContainer(container interface{}) (map[string]interface{},
 
 	if len(b.volumeKeys) > 0 {
 		// and adding volume mount entries
-		c.VolumeMounts = b.appendVolumeMounts(c.VolumeMounts)
+		if b.sbr.Spec.BindAsFiles {
+			c.VolumeMounts = b.appendVolumeMounts(c.VolumeMounts)
+		}
 	}
 
 	return runtime.DefaultUnstructuredConverter.ToUnstructured(c)
