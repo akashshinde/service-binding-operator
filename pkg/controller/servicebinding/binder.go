@@ -424,7 +424,7 @@ func (b *binder) updateContainer(container interface{}) (map[string]interface{},
 	if len(b.volumeKeys) > 0 {
 		// and adding volume mount entries
 		if b.sbr.Spec.BindAsFiles {
-			c.VolumeMounts = b.appendVolumeMounts(c.VolumeMounts)
+			c.VolumeMounts = b.appendVolumeMounts(c.VolumeMounts, b.mountPath())
 		}
 	}
 
@@ -449,8 +449,7 @@ func (b *binder) removeContainer(container interface{}) (map[string]interface{},
 	return runtime.DefaultUnstructuredConverter.ToUnstructured(c)
 }
 
-// appendVolumeMounts append the binding volume in the template level.
-func (b *binder) appendVolumeMounts(volumeMounts []corev1.VolumeMount) []corev1.VolumeMount {
+func (b *binder) mountPath() string {
 	name := b.sbr.GetName()
 	mountPath := b.bindingRoot
 	fixedMountPath := false
@@ -466,6 +465,12 @@ func (b *binder) appendVolumeMounts(volumeMounts []corev1.VolumeMount) []corev1.
 	if !fixedMountPath {
 		mountPath = path.Join(mountPath, name)
 	}
+	return mountPath
+}
+
+// appendVolumeMounts append the binding volume in the template level.
+func (b *binder) appendVolumeMounts(volumeMounts []corev1.VolumeMount, mountPath string) []corev1.VolumeMount {
+	name := b.sbr.GetName()
 	for _, v := range volumeMounts {
 		if name == v.Name {
 			return volumeMounts
