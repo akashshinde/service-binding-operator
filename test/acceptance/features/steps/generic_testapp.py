@@ -53,13 +53,15 @@ def is_running(context, application_name):
         application.install_with_env()
     context.application = application
 
+
 @given(u'Generic test application "{application_name}" is running without SERVICE_BINDING_ROOT')
-def is_running(context, application_name):
+def is_running_without_service_binding_root(context, application_name):
     application = GenericTestApp(application_name, context.namespace.name)
     if not application.is_running():
         print("application is not running, trying to import it")
         application.install()
     context.application = application
+
 
 @given(u'Generic test application "{application_name}" is running with binding root as "{bindingRoot}"')
 def is_running_with_env(context, application_name, bindingRoot):

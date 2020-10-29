@@ -116,7 +116,6 @@ Feature: bindings get injected as files in application container
             8080
             """
 
-    @wip
     Scenario: Binding is injected as file into application pod at the location specified through mountPath
         Given OLM Operator "backend" is running
         * Generic test application "generic-app-a-d-u-2" is running without SERVICE_BINDING_ROOT
