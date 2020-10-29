@@ -7,9 +7,8 @@ from behave import given, step, then
 
 class GenericTestApp(App):
 
-    def __init__(self, name, namespace, bindingRoot="/bindings", app_image="quay.io/redhat-developer/sbo-generic-test-app:20200923"):
-        App.__init__(self, name, namespace, app_image)
-        self.bindingRoot = bindingRoot
+    def __init__(self, name, namespace, bindingRoot="", app_image="quay.io/redhat-developer/sbo-generic-test-app:20200923"):
+        App.__init__(self, name, namespace, app_image, bindingRoot)
 
     def get_env_var_value(self, name):
         resp = polling2.poll(lambda: requests.get(url=f"http://{self.route_url}/env/{name}"),
@@ -27,17 +26,8 @@ class GenericTestApp(App):
         if resp.status_code == 404:
             return True
 
-    def install_with_env(self):
-        create_new_app_output, exit_code = self.cmd.run(
-            f"oc new-app --docker-image={self.app_image} --name={self.name} -n {self.namespace} -e SERVICE_BINDING_ROOT={self.bindingRoot}")
-        assert exit_code == 0, f"Non-zero exit code ({exit_code}) returned when attempting to create a new app: {create_new_app_output}"
-        assert self.openshift.expose_service_route(self.name,
-                                                   self.namespace) is not None, "Unable to expose service route"
-        return self.is_running(wait=True)
-
     def get_file_value(self, file_path):
-        resp = polling2.poll(lambda: requests.get(url=f"http://{self.route_url}{file_path}"),
-                             check_success=lambda r: r.status_code in [200], step=5, timeout=400)
+        resp = requests.get(url=f"http://{self.route_url}{file_path}")
         print(f'file endpoint response: {resp.text} code: {resp.status_code}')
         if resp.status_code == 200:
             return resp.text
@@ -45,10 +35,10 @@ class GenericTestApp(App):
 
 @given(u'Generic test application "{application_name}" is running')
 def is_running(context, application_name):
-    application = GenericTestApp(application_name, context.namespace.name)
+    application = GenericTestApp(application_name, context.namespace.name, "/bindings")
     if not application.is_running():
         print("application is not running, trying to import it")
-        application.install_with_env()
+        application.install()
     context.application = application
 
 
@@ -66,7 +56,7 @@ def is_running_with_env(context, application_name, bindingRoot):
     application = GenericTestApp(application_name, context.namespace.name, bindingRoot)
     if not application.is_running():
         print("application is not running, trying to import it")
-        application.install_with_env()
+        application.install()
     context.application = application
 
 
@@ -85,5 +75,5 @@ def check_env_var_existence(context, name):
 @then(u'Content of file "{file_path}" in application pod is')
 def check_file_value(context, file_path):
     value = context.text.strip()
-    found = context.application.get_file_value(file_path) == value
+    found = polling2.poll(lambda: context.application.get_file_value(file_path) == value, step=5, timeout=400)
     assert found, f'File "{file_path}" should contain value "{value}"'

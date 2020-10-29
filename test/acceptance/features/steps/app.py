@@ -10,11 +10,13 @@ class App:
     namespace = ""
     app_image = ""
     route_url = ""
+    bindingRoot = ""
 
-    def __init__(self, name, namespace, app_image):
+    def __init__(self, name, namespace, app_image, bindingRoot):
         self.name = name
         self.namespace = namespace
         self.app_image = app_image
+        self.bindingRoot = bindingRoot
 
     def is_running(self, wait=False):
         output, exit_code = self.cmd.run(
@@ -27,7 +29,7 @@ class App:
 
     def install(self):
         create_new_app_output, exit_code = self.cmd.run(
-            f"oc new-app --docker-image={self.app_image} --name={self.name} -n {self.namespace}")
+            f"oc new-app --docker-image={self.app_image} --name={self.name} -n {self.namespace} -e SERVICE_BINDING_ROOT={self.bindingRoot}")
         assert exit_code == 0, f"Non-zero exit code ({exit_code}) returned when attempting to create a new app: {create_new_app_output}"
         assert self.openshift.expose_service_route(self.name,
                                                    self.namespace) is not None, "Unable to expose service route"
