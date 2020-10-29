@@ -37,7 +37,7 @@ type binder struct {
 	dynClient   dynamic.Interface        // kubernetes dynamic api client
 	sbr         *v1alpha1.ServiceBinding // instantiated service binding request
 	volumeKeys  []string                 // list of key names used in volume mounts
-	bindingRoot *string
+	bindingRoot string
 	modifier    extraFieldsModifier // extra modifier for CRDs before updating
 	restMapper  meta.RESTMapper     // RESTMapper to convert GVR from GVK
 	logger      *log.Log            // logger instance
@@ -411,7 +411,7 @@ func (b *binder) updateContainer(container interface{}) (map[string]interface{},
 
 	for _, e := range c.Env {
 		if e.Name == serviceBindingRootEnvVar {
-			b.bindingRoot = &e.Value
+			b.bindingRoot = e.Value
 			break
 		}
 	}
@@ -452,7 +452,7 @@ func (b *binder) removeContainer(container interface{}) (map[string]interface{},
 // appendVolumeMounts append the binding volume in the template level.
 func (b *binder) appendVolumeMounts(volumeMounts []corev1.VolumeMount) []corev1.VolumeMount {
 	name := b.sbr.GetName()
-	mountPath := *b.bindingRoot
+	mountPath := b.bindingRoot
 	fixedMountPath := false
 	if mountPath == "" {
 		mountPath = b.sbr.Spec.MountPath

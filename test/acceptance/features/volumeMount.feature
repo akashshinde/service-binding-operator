@@ -10,7 +10,7 @@ Feature: bindings get injected as files in application container
 
     Scenario: Binding is injected as files at the location of SERVICE_BINDING_ROOT env var
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u" is running with binding root as "/var/data"
+        * Generic test application "generic-app-a-d-u-1" is running with binding root as "/var/data"
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -44,7 +44,7 @@ Feature: bindings get injected as files in application container
                     value: '{{ .bk.spec.host }}'
 
                 application:
-                    name: generic-app-a-d-u
+                    name: generic-app-a-d-u-1
                     group: apps
                     version: v1
                     resource: deployments
@@ -53,6 +53,7 @@ Feature: bindings get injected as files in application container
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "binding-backend-vm-01" should be changed to "True"
         And The env var "BACKEND_HOST" is not available to the application
         And The env var "BACKEND_PORT" is not available to the application
+        And The env var "MYHOST" is not available to the application
         And Content of file "/var/data/binding-backend-vm-01/BACKEND_HOST" in application pod is
             """
             example.common
@@ -68,7 +69,7 @@ Feature: bindings get injected as files in application container
 
     Scenario: Binding is injected as file into application pod at default location
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u" is running
+        * Generic test application "generic-app-a-d-u-2" is running
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -97,7 +98,7 @@ Feature: bindings get injected as files in application container
                     name: backend-demo
 
                 application:
-                    name: generic-app-a-d-u
+                    name: generic-app-a-d-u-2
                     group: apps
                     version: v1
                     resource: deployments
@@ -115,9 +116,10 @@ Feature: bindings get injected as files in application container
             8080
             """
 
+    @wip
     Scenario: Binding is injected as file into application pod at the location specified through mountPath
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u" is running
+        * Generic test application "generic-app-a-d-u-2" is running without SERVICE_BINDING_ROOT
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -147,7 +149,7 @@ Feature: bindings get injected as files in application container
                     name: backend-demo
 
                 application:
-                    name: generic-app-a-d-u
+                    name: generic-app-a-d-u-2
                     group: apps
                     version: v1
                     resource: deployments
@@ -167,7 +169,7 @@ Feature: bindings get injected as files in application container
 
     Scenario: Binding is injected as files at the location of SERVICE_BINDING_ROOT env var even with mountPath
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u" is running with binding root as "/var/data"
+        * Generic test application "generic-app-a-d-u-3" is running with binding root as "/var/data"
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -202,7 +204,7 @@ Feature: bindings get injected as files in application container
                     value: '{{ .bk.spec.host }}'
 
                 application:
-                    name: generic-app-a-d-u
+                    name: generic-app-a-d-u-3
                     group: apps
                     version: v1
                     resource: deployments
@@ -223,5 +225,3 @@ Feature: bindings get injected as files in application container
             """
             example.common
             """
-
-
