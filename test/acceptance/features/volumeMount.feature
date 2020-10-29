@@ -224,3 +224,56 @@ Feature: bindings get injected as files in application container
             """
             example.common
             """
+
+    Scenario: Binding is injected as file into application pod at the location specified through mountPath with empty prefix
+        Given OLM Operator "backend" is running
+        * Generic test application "generic-app-a-d-u-2" is running without SERVICE_BINDING_ROOT
+        * The Custom Resource is present
+            """
+            apiVersion: "stable.example.com/v1"
+            kind: Backend
+            metadata:
+                name: backend-demo
+                annotations:
+                    "service.binding/host": "path={.spec.host}"
+                    "service.binding/port": "path={.spec.port}"
+            spec:
+                host: example.common
+                port: 8080
+            """
+        When Service Binding is applied
+            """
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ServiceBinding
+            metadata:
+                name: binding-backend-vm-03
+            spec:
+                mountPath: "/foo/bar"
+                bindAsFiles: true
+                services:
+                -   group: stable.example.com
+                    version: v1
+                    kind: Backend
+                    name: backend-demo
+                    envVarPrefix: ""
+
+                application:
+                    name: generic-app-a-d-u-2
+                    group: apps
+                    version: v1
+                    resource: deployments
+            """
+        Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "binding-backend-vm-03" should be changed to "True"
+        And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "binding-backend-vm-03" should be changed to "True"
+        And The env var "HOST" is not available to the application
+        And The env var "PORT" is not available to the application
+        And Content of file "/foo/bar/HOST" in application pod is
+            """
+            example.common
+            """
+        And Content of file "/foo/bar/PORT" in application pod is
+            """
+            8080
+            """
+
+
