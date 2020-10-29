@@ -1,4 +1,4 @@
-Feature: bindings get injected as files in application container
+Feature: Bindings get injected as files in application
 
     As a user of Service Binding Operator
     I want to bind applications to services it depends on
@@ -67,7 +67,7 @@ Feature: bindings get injected as files in application container
             example.common
             """
 
-    Scenario: Binding is injected as file into application pod at default location
+    Scenario: Binding is injected as file into application at default location
         Given OLM Operator "backend" is running
         * Generic test application "generic-app-a-d-u-2" is running
         * The Custom Resource is present
@@ -116,7 +116,7 @@ Feature: bindings get injected as files in application container
             8080
             """
 
-    Scenario: Binding is injected as file into application pod at the location specified through mountPath
+    Scenario: Binding is injected as file into application at the location specified through mountPath
         Given OLM Operator "backend" is running
         * Generic test application "generic-app-a-d-u-2" is running without SERVICE_BINDING_ROOT
         * The Custom Resource is present
@@ -225,7 +225,7 @@ Feature: bindings get injected as files in application container
             example.common
             """
 
-    Scenario: Binding is injected as file into application pod at the location specified through mountPath with empty prefix
+    Scenario: Binding is injected as file into application at the location specified through mountPath with empty prefix
         Given OLM Operator "backend" is running
         * Generic test application "generic-app-a-d-u-2" is running without SERVICE_BINDING_ROOT
         * The Custom Resource is present
@@ -275,5 +275,3 @@ Feature: bindings get injected as files in application container
             """
             8080
             """
-
-

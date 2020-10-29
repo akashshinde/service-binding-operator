@@ -37,12 +37,10 @@ class GenericTestApp(App):
 
     def get_file_value(self, file_path):
         resp = polling2.poll(lambda: requests.get(url=f"http://{self.route_url}{file_path}"),
-                             check_success=lambda r: r.status_code in [200, 404], step=5, timeout=400)
+                             check_success=lambda r: r.status_code in [200], step=5, timeout=400)
         print(f'file endpoint response: {resp.text} code: {resp.status_code}')
         if resp.status_code == 200:
             return resp.text
-        else:
-            return None
 
 
 @given(u'Generic test application "{application_name}" is running')
@@ -87,5 +85,5 @@ def check_env_var_existence(context, name):
 @then(u'Content of file "{file_path}" in application pod is')
 def check_file_value(context, file_path):
     value = context.text.strip()
-    found = polling2.poll(lambda: context.application.get_file_value(file_path) == value, step=5, timeout=400)
+    found = context.application.get_file_value(file_path) == value
     assert found, f'File "{file_path}" should contain value "{value}"'
