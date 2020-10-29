@@ -118,7 +118,7 @@ Feature: Bindings get injected as files in application
 
     Scenario: Binding is injected as file into application at the location specified through mountPath
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u-2" is running without SERVICE_BINDING_ROOT
+        * Generic test application "generic-app-a-d-u-2" is running
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -227,7 +227,7 @@ Feature: Bindings get injected as files in application
 
     Scenario: Binding is injected as file into application at the location specified through mountPath with empty prefix
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u-2" is running without SERVICE_BINDING_ROOT
+        * Generic test application "generic-app-a-d-u-2" is running
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -246,7 +246,7 @@ Feature: Bindings get injected as files in application
             apiVersion: operators.coreos.com/v1alpha1
             kind: ServiceBinding
             metadata:
-                name: binding-backend-vm-03
+                name: binding-backend-vm-05
             spec:
                 mountPath: "/foo/bar"
                 bindAsFiles: true
@@ -263,8 +263,8 @@ Feature: Bindings get injected as files in application
                     version: v1
                     resource: deployments
             """
-        Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "binding-backend-vm-03" should be changed to "True"
-        And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "binding-backend-vm-03" should be changed to "True"
+        Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "binding-backend-vm-05" should be changed to "True"
+        And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "binding-backend-vm-05" should be changed to "True"
         And The env var "HOST" is not available to the application
         And The env var "PORT" is not available to the application
         And Content of file "/foo/bar/HOST" in application pod is

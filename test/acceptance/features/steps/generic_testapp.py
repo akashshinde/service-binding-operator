@@ -35,15 +35,6 @@ class GenericTestApp(App):
 
 @given(u'Generic test application "{application_name}" is running')
 def is_running(context, application_name):
-    application = GenericTestApp(application_name, context.namespace.name, "/bindings")
-    if not application.is_running():
-        print("application is not running, trying to import it")
-        application.install()
-    context.application = application
-
-
-@given(u'Generic test application "{application_name}" is running without SERVICE_BINDING_ROOT')
-def is_running_without_service_binding_root(context, application_name):
     application = GenericTestApp(application_name, context.namespace.name)
     if not application.is_running():
         print("application is not running, trying to import it")
