@@ -41,7 +41,7 @@ type ServiceBindingSpec struct {
 	// +optional
 	DetectBindingResources *bool `json:"detectBindingResources,omitempty"`
 
-	// BindAsFiles flag enable binding values as files.
+	// BindAsFiles flag enables injecting bindings as files into application.
 	// +optional
 	BindAsFiles bool `json:"bindAsFiles,omitempty"`
 }
