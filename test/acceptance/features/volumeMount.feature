@@ -118,7 +118,7 @@ Feature: Bindings get injected as files in application
 
     Scenario: Binding is injected as file into application at the location specified through mountPath
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u-2" is running
+        * Generic test application "generic-app-a-d-u-3" is running
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -148,7 +148,7 @@ Feature: Bindings get injected as files in application
                     name: backend-demo
 
                 application:
-                    name: generic-app-a-d-u-2
+                    name: generic-app-a-d-u-3
                     group: apps
                     version: v1
                     resource: deployments
@@ -168,7 +168,7 @@ Feature: Bindings get injected as files in application
 
     Scenario: Binding is injected as files at the location of SERVICE_BINDING_ROOT env var even with mountPath
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u-3" is running with binding root as "/var/data"
+        * Generic test application "generic-app-a-d-u-4" is running with binding root as "/var/data"
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -203,7 +203,7 @@ Feature: Bindings get injected as files in application
                     value: '{{ .bk.spec.host }}'
 
                 application:
-                    name: generic-app-a-d-u-3
+                    name: generic-app-a-d-u-4
                     group: apps
                     version: v1
                     resource: deployments
@@ -227,7 +227,7 @@ Feature: Bindings get injected as files in application
 
     Scenario: Binding is injected as file into application at the location specified through mountPath with empty prefix
         Given OLM Operator "backend" is running
-        * Generic test application "generic-app-a-d-u-2" is running
+        * Generic test application "generic-app-a-d-u-5" is running
         * The Custom Resource is present
             """
             apiVersion: "stable.example.com/v1"
@@ -258,7 +258,7 @@ Feature: Bindings get injected as files in application
                     envVarPrefix: ""
 
                 application:
-                    name: generic-app-a-d-u-2
+                    name: generic-app-a-d-u-5
                     group: apps
                     version: v1
                     resource: deployments
