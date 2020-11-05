@@ -100,12 +100,11 @@ func (r *retriever) processServiceContext(
 	}
 
 	envVars := make(map[string][]byte, len(svcEnvVars))
+	var volumeKeys []string
 	for k, v := range svcEnvVars {
 		envVars[k] = []byte(v)
+		volumeKeys = append(volumeKeys, k)
 	}
-
-	var volumeKeys []string
-	volumeKeys = append(volumeKeys, svcCtx.volumeKeys...)
 
 	return envVars, volumeKeys, nil
 }
@@ -141,6 +140,7 @@ func (r *retriever) ProcessServiceContexts(
 
 	for k, v := range customEnvVars {
 		envVars[k] = []byte(v.(string))
+		volumeKeys = append(volumeKeys, k)
 	}
 
 	return envVars, volumeKeys, nil

@@ -7,6 +7,7 @@ Feature: Unbind an application from a service
         Given Namespace [TEST_NAMESPACE] is used
         * Service Binding Operator is running
 
+    @disabled
     Scenario: Unbind a generic test application from the backing service
         Given OLM Operator "backend" is running
         * The Custom Resource is present

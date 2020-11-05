@@ -270,14 +270,14 @@ COCKROACHDB_CONF_PORT=8090
 Here's how the mount paths look like:
 
 ```
-var
-├── data
-│   ├── COCKROACHDB_CLUSTERIP
-│   ├── COCKROACHDB_CONF_PORT
+
+/bindings
+├── COCKROACHDB_CLUSTERIP
+├── COCKROACHDB_CONF_PORT
 
 ```
 
-Instead of `/var/data`, you can specify a custom binding root path by specifying the same in `spec.mountPathPrefix`, example,
+Instead of `/bindings`, you can specify a custom binding root path by specifying the same in `spec.mountPath`, example,
 
 ``` yaml
 apiVersion: operators.coreos.com/v1alpha1
@@ -297,7 +297,7 @@ spec:
     kind: Cockroachdb
     name: db-demo
     id: db_1
-  mounthPathPrefix: '/bindings/accounts-db' # User configurable binding root
+  mounthPath: '/bindings/accounts-db' # User configurable binding root
 ```
 
 Here's how the mount paths would look like, where applicable:
