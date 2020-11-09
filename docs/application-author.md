@@ -254,7 +254,7 @@ data:
 type: Opaque
 ```
 
-This would generate a binding secret and inject it into the workload as an environment variable or a volume mount in the path `/var/data` depending on the intent expressed in the annotations on the Custom Resource.
+This would generate a binding secret and inject it into the workload as an environment variable or a volume mount depending on the intent expressed in the annotations on the Custom Resource.
 
 
 Here's how the environment variables look like:
@@ -270,11 +270,10 @@ COCKROACHDB_CONF_PORT=8090
 Here's how the mount paths look like:
 
 ```
-
-/bindings
-├── COCKROACHDB_CLUSTERIP
-├── COCKROACHDB_CONF_PORT
-
+bindings
+├── <Service-binding-name>
+│   ├── COCKROACHDB_CLUSTERIP
+│   ├── COCKROACHDB_CONF_PORT
 ```
 
 Instead of `/bindings`, you can specify a custom binding root path by specifying the same in `spec.mountPath`, example,
@@ -286,6 +285,7 @@ metadata:
   name: binding-request
   namespace: service-binding-demo
 spec:
+  bindAsFiles: true
   application:
     name: java-app
     group: apps
@@ -309,11 +309,18 @@ bindings
 │   ├── COCKROACHDB_CONF_PORT
 ```
 
+For enabling binding as Files we need to set bindAsFiles to true. This flag enables injecting bindings as files into the application/workload. By default this is not set.
 
-**Note**
+For determining the destination of the intermediate secrets when binding as files, we can specify the destination using the mountPath API or we can use a special environment variable SERVICE_BINDING_ROOT. If both are mentioned then the SERVICE_BINDING_ROOT environment variable takes the higher precedence.
 
-*Injection of binding information as volume mounts is in the development phase and is not stable enough for use.*
+The following table would help in summarizing the volume mount support in service binding.
 
+| spec.mountPath  | SERVICE_BINDING_ROOT | Final Bind Path                      |
+| --------------- | ---------------------| -------------------------------------|
+| nil             | non-existent         | /bindings/ServiceBinding_Name        |
+| nil             | /some/path/root      | /some/path/root/ServiceBinding_Name  |
+| /home/foo       | non-existent         | /home/foo                            |
+| /home/foo       | /some/path/root      | /some/path/root/ServiceBinding_Name  |
 
 
 # Binding non-podSpec-based application workloads
