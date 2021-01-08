@@ -1,6 +1,7 @@
 package servicebinding
 
 import (
+	"github.com/redhat-developer/service-binding-operator/pkg/controller/servicebinding/naming"
 	"strings"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -44,7 +45,10 @@ func buildServiceEnvVars(svcCtx *serviceContext, globalNamePrefix string) (map[s
 		prefixes = append(prefixes, svcCtx.service.GroupVersionKind().Kind)
 	}
 
-	return envvars.Build(svcCtx.envVars, prefixes...)
+	if svcCtx.namingStrategy == nil {
+		return envvars.Build(svcCtx.envVars, prefixes...)
+	}
+	return naming.Build(svcCtx.service.Object, svcCtx.envVars, *svcCtx.namingStrategy)
 }
 
 func (r *retriever) processServiceContext(

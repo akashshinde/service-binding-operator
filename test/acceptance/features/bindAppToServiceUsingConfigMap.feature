@@ -7,6 +7,7 @@ Feature: Bind values from a config map referred in backing service resource
         Given Namespace [TEST_NAMESPACE] is used
         * Service Binding Operator is running
 
+    @naming
     Scenario: Inject into app a key from a config map referred within service resource
         Binding definition is declared on service CRD.
 
@@ -69,6 +70,7 @@ Feature: Bind values from a config map referred in backing service resource
                     version: v1
                     kind: Backend
                     name: cmsa-1-service
+                    naming-strategy: {{.service.kind | lower}}_{{.name | upper}}
                 application:
                     name: cmsa-1
                     group: apps

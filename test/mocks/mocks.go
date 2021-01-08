@@ -439,11 +439,13 @@ func ServiceBindingMock(
 	if backingServiceResourceRef == "" {
 		services = []v1alpha1.Service{}
 	} else {
+		namingStrategy := "{{.name | title}}"
 		services = []v1alpha1.Service{
 			{
 				GroupVersionKind:     metav1.GroupVersionKind{Group: CRDName, Version: CRDVersion, Kind: CRDKind},
 				LocalObjectReference: corev1.LocalObjectReference{Name: backingServiceResourceRef},
 				Namespace:            backingServiceNamespace,
+				NamingStrategy:       &namingStrategy,
 			},
 		}
 	}

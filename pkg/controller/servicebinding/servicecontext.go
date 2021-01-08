@@ -1,6 +1,7 @@
 package servicebinding
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/imdario/mergo"
@@ -23,7 +24,8 @@ type serviceContext struct {
 	// envVars contains the service's contributed environment variables.
 	envVars map[string]interface{}
 	// namePrefix indicates the prefix to use in environment variables.
-	namePrefix *string
+	namePrefix     *string
+	namingStrategy *string
 	// Id indicates a name the service can be referred in custom environment variables.
 	id *string
 }
@@ -64,7 +66,7 @@ SELECTORS:
 		ns := stringValueOrDefault(s.Namespace, defaultNs)
 		gvk := schema.GroupVersionKind{Kind: s.Kind, Version: s.Version, Group: s.Group}
 		svcCtx, err := buildServiceContext(logger.WithName("buildServiceContexts"), client, ns, gvk,
-			s.Name, s.NamePrefix, restMapper, s.Id)
+			s.Name, s.NamingStrategy, s.NamePrefix, restMapper, s.Id)
 
 		if err != nil {
 			// best effort approach; should not break in common cases such as a unknown annotation
@@ -92,6 +94,7 @@ SELECTORS:
 				svcCtx.service.GetUID(),
 				gvk,
 				svcNamePrefix,
+				s.NamingStrategy,
 				restMapper,
 			)
 			if err != nil {
@@ -112,6 +115,7 @@ func findOwnedResourcesCtxs(
 	uid types.UID,
 	gvk schema.GroupVersionKind,
 	namePrefix *string,
+	namingStrategy *string,
 	restMapper meta.RESTMapper,
 ) (serviceContextList, error) {
 	ownedResources, err := getOwnedResources(
@@ -130,6 +134,7 @@ func findOwnedResourcesCtxs(
 		client,
 		ownedResources,
 		namePrefix,
+		namingStrategy,
 		restMapper,
 	)
 }
@@ -191,6 +196,7 @@ func buildServiceContext(
 	ns string,
 	gvk schema.GroupVersionKind,
 	name string,
+	namingStrategy *string,
 	namePrefix *string,
 	restMapper meta.RESTMapper,
 	id *string,
@@ -248,16 +254,18 @@ func buildServiceContext(
 		v := anns[k]
 		// runHandler modifies 'outputObj', and 'envVars' in place.
 		err := runHandler(client, obj, outputObj, k, v, envVars, restMapper)
+		fmt.Printf("Current envVars %s", envVars)
 		if err != nil {
-			logger.Debug("Failed executing runHandler", "Error", err)
+			logger.Debug("Failed executing runHandler in envars", "Error", err)
 		}
 	}
 
 	serviceCtx := &serviceContext{
-		service:    outputObj,
-		envVars:    envVars,
-		namePrefix: namePrefix,
-		id:         id,
+		service:        outputObj,
+		envVars:        envVars,
+		namePrefix:     namePrefix,
+		namingStrategy: namingStrategy,
+		id:             id,
 	}
 
 	return serviceCtx, nil

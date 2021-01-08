@@ -95,9 +95,10 @@ type Service struct {
 	corev1.LocalObjectReference `json:",inline"`
 
 	// +optional
-	Namespace  *string `json:"namespace,omitempty"`
-	NamePrefix *string `json:"namePrefix,omitempty"`
-	Id         *string `json:"id,omitempty"`
+	Namespace      *string `json:"namespace,omitempty"`
+	NamePrefix     *string `json:"namePrefix,omitempty"`
+	NamingStrategy *string `json:"naming_strategy"`
+	Id             *string `json:"id,omitempty"`
 }
 
 // BoundApplication defines the application workloads to which the binding secret has

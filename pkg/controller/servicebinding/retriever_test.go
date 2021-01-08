@@ -142,6 +142,7 @@ func TestBuildServiceEnvVars(t *testing.T) {
 
 	serviceNamePrefix := "serviceprefix"
 	emptyString := ""
+	namingStrategy := "{{.service.kind | lower}}_custom_env_{{.name | upper}}"
 
 	testCases := []testCase{
 		{
@@ -203,6 +204,20 @@ func TestBuildServiceEnvVars(t *testing.T) {
 			},
 			expected: map[string]string{
 				"SERVICEPREFIX_APIKEY": "my-secret-key",
+			},
+		},
+		{
+			globalNamePrefix: "",
+			ctx: &serviceContext{
+				namePrefix:     &emptyString,
+				namingStrategy: &namingStrategy,
+				service:        cr,
+				envVars: map[string]interface{}{
+					"apiKey": "my-secret-key",
+				},
+			},
+			expected: map[string]string{
+				"database_custom_env_APIKEY": "my-secret-key",
 			},
 		},
 	}
