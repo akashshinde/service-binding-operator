@@ -33,30 +33,46 @@ func createServiceIndexPath(name string, gvk schema.GroupVersionKind) []string {
 
 }
 
-func buildServiceEnvVars(svcCtx *serviceContext, globalNamePrefix string) (map[string]string, error) {
-	prefixes := []string{}
-	if len(globalNamePrefix) > 0 {
-		prefixes = append(prefixes, globalNamePrefix)
-	}
-	if svcCtx.namePrefix != nil && len(*svcCtx.namePrefix) > 0 {
-		prefixes = append(prefixes, *svcCtx.namePrefix)
-	}
-	if svcCtx.namePrefix == nil {
-		prefixes = append(prefixes, svcCtx.service.GroupVersionKind().Kind)
+func buildServiceEnvVars(svcCtx *serviceContext, globalNameStrategy string) (map[string]string, error) {
+	if globalNameStrategy != "" && svcCtx.namingStrategy == nil {
+		svcCtx.namingStrategy = &globalNameStrategy
 	}
 
-	if svcCtx.namingStrategy == nil {
-		return envvars.Build(svcCtx.envVars, prefixes...)
+	namingTemplate := ""
+	prefixes := []string{}
+
+	listEnvVars, err := envvars.Build(svcCtx.envVars, prefixes...)
+	if err != nil {
+		return nil, err
 	}
-	return naming.Build(svcCtx.service.Object, svcCtx.envVars, *svcCtx.namingStrategy)
+
+	if svcCtx.bindAsFiles && svcCtx.namingStrategy == nil {
+		namingTemplate = naming.Strategies["bindAsFiles"]
+	} else if svcCtx.namingStrategy == nil {
+		namingTemplate = naming.Strategies["default"]
+	} else if svcCtx.namingStrategy != nil {
+		if v, ok := naming.Strategies[*svcCtx.namingStrategy]; ok {
+			namingTemplate = v
+		} else {
+			namingTemplate = *svcCtx.namingStrategy
+		}
+	}
+
+	svcCtx.namingStrategy = &namingTemplate
+
+	data := map[string]interface{}{}
+	if svcCtx.service == nil {
+		svcCtx.service = &unstructured.Unstructured{Object: data}
+	}
+	return naming.Build(svcCtx.service.Object, listEnvVars, *svcCtx.namingStrategy)
 }
 
 func (r *retriever) processServiceContext(
 	svcCtx *serviceContext,
 	mappingsCtx map[string]interface{},
-	globalNamePrefix string,
+	globalNameStrategy string,
 ) (map[string][]byte, error) {
-	svcEnvVars, err := buildServiceEnvVars(svcCtx, globalNamePrefix)
+	svcEnvVars, err := buildServiceEnvVars(svcCtx, globalNameStrategy)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +129,7 @@ func (r *retriever) processServiceContext(
 
 // ProcessServiceContexts returns environment variables and volume keys from a ServiceContext slice.
 func (r *retriever) ProcessServiceContexts(
-	globalNamePrefix string,
+	globalNameStrategy string,
 	svcCtxs serviceContextList,
 	envVarTemplates []v1alpha1.Mapping,
 ) (map[string][]byte, error) {
@@ -121,7 +137,7 @@ func (r *retriever) ProcessServiceContexts(
 	envVars := make(map[string][]byte)
 
 	for _, svcCtx := range svcCtxs {
-		s, err := r.processServiceContext(svcCtx, mappingsCtx, globalNamePrefix)
+		s, err := r.processServiceContext(svcCtx, mappingsCtx, globalNameStrategy)
 		if err != nil {
 			return nil, err
 		}

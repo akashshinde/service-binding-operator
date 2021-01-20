@@ -212,8 +212,8 @@ func getOwnedResources(
 func buildOwnedResourceContext(
 	client dynamic.Interface,
 	obj *unstructured.Unstructured,
-	ownerNamePrefix *string,
 	namingStrategy *string,
+	isBindAsFiles bool,
 	restMapper meta.RESTMapper,
 	inputPath string,
 	outputPath string,
@@ -225,16 +225,14 @@ func buildOwnedResourceContext(
 		obj.GetObjectKind().GroupVersionKind(),
 		obj.GetName(),
 		namingStrategy,
-		ownerNamePrefix,
+		isBindAsFiles,
 		restMapper,
 		nil,
 	)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("\n BEFORE ENVVAR %s", svcCtx.envVars)
 	svcCtx.envVars, _, err = nested.GetValue(obj.Object, inputPath, outputPath)
-	fmt.Printf("\n AFTER ENVVAR %s", svcCtx.envVars)
 	return svcCtx, err
 }
 
@@ -242,7 +240,7 @@ func buildOwnedResourceContexts(
 	client dynamic.Interface,
 	objs []*unstructured.Unstructured,
 	ownerNamePrefix *string,
-	namingStrategy *string,
+	isBindAsFiles bool,
 	restMapper meta.RESTMapper,
 ) ([]*serviceContext, error) {
 	ctxs := make(serviceContextList, 0)
@@ -256,7 +254,7 @@ func buildOwnedResourceContexts(
 				client,
 				obj,
 				ownerNamePrefix,
-				namingStrategy,
+				isBindAsFiles,
 				restMapper,
 				br.inputPath,
 				br.outputPath,

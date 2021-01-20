@@ -24,7 +24,7 @@ func TestBuildServiceContexts(t *testing.T) {
 		ns := "planner"
 		f := mocks.NewFake(t, ns)
 		serviceCtxs, err := buildServiceContexts(
-			logger, f.FakeDynClient(), ns, nil, &falseBool, restMapper)
+			logger, f.FakeDynClient(), ns, nil, &falseBool, false, restMapper)
 
 		require.NoError(t, err, "buildServiceContexts must execute without errors")
 		require.Empty(t, serviceCtxs, "buildServiceContexts must be empty")
@@ -48,7 +48,7 @@ func TestBuildServiceContexts(t *testing.T) {
 		sbr := f.AddMockedServiceBinding(sbrName, nil, firstResourceRef, "", deploymentsGVR, matchLabels)
 
 		serviceCtxs, err := buildServiceContexts(
-			logger, f.FakeDynClient(), firstNamespace, sbr.Spec.Services, &falseBool, restMapper)
+			logger, f.FakeDynClient(), firstNamespace, sbr.Spec.Services, &falseBool, false, restMapper)
 
 		require.NoError(t, err, "buildServiceContexts must execute without errors")
 		require.Len(t, serviceCtxs, 1, "buildServiceContexts must return only one item")
@@ -119,7 +119,7 @@ func TestBuildServiceContexts(t *testing.T) {
 		}
 
 		serviceCtxs, err := buildServiceContexts(
-			logger, f.FakeDynClient(), sameNs, sbr.Spec.Services, &falseBool, restMapper)
+			logger, f.FakeDynClient(), sameNs, sbr.Spec.Services, &falseBool, false, restMapper)
 
 		require.NoError(t, err, "buildServiceContexts must execute without errors")
 		require.Len(t, serviceCtxs, 2, "buildServiceContexts must return both service contexts")
@@ -204,7 +204,7 @@ func TestFindOwnedResourcesCtxs_ConfigMap(t *testing.T) {
 			cr.GetUID(),
 			cr.GroupVersionKind(),
 			nil,
-			nil,
+			false,
 			restMapper,
 		)
 		require.NoError(t, err)
@@ -269,7 +269,7 @@ func TestFindOwnedResourcesCtxs_Secrets(t *testing.T) {
 				cr.GetUID(),
 				cr.GroupVersionKind(),
 				nil,
-				nil,
+				false,
 				restMapper,
 			)
 			require.NoError(t, err)

@@ -87,6 +87,7 @@ func buildEnvVarName(path []string) string {
 			newPath = append(newPath, p)
 		}
 	}
+
 	envVar := strings.Join(newPath, "_")
 	envVar = strings.ReplaceAll(envVar, ".", "_")
 	envVar = strings.ToUpper(envVar)

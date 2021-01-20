@@ -34,6 +34,42 @@ Feature: Bind an application to a service
         Then Service Binding "binding-request-a-d-s" is ready
         And application should be re-deployed
         And application should be connected to the DB "db-demo-a-d-s"
+        And Secret "binding-request-a-d-s" contains "DBNAME" key with value "db-demo-a-d-s"
+        And Secret "binding-request-a-d-s" contains "USER" key with value "postgres"
+        And Secret "binding-request-a-d-s" contains "PASSWORD" key with value "password"
+        And Secret "binding-request-a-d-s" contains "DB_PASSWORD" key with value "password"
+        And Secret "binding-request-a-d-s" contains "DB_NAME" key with value "db-demo-a-d-s"
+        And Secret "binding-request-a-d-s" contains "DB_PORT" key with value "5432"
+        And Secret "binding-request-a-d-s" contains "DB_USER" key with value "postgres"
+        And Secret "binding-request-a-d-s" contains "DB_HOST" key with dynamic IP addess as the value
+        And Secret "binding-request-a-d-s" contains "DBCONNECTIONIP" key with dynamic IP addess as the value
+        And Secret "binding-request-a-d-s" contains "DBCONNECTIONPORT" key with value "5432"
+
+    Scenario: Bind an imported Node.js application to PostgreSQL database in the following order: Application, DB and Service Binding and use custom naming strategy
+        Given Imported Nodejs application "nodejs-rest-http-crud-a-d-s-naming" is running
+        * DB "db-demo-a-d-s-naming" is running
+        When Service Binding is applied
+            """
+            apiVersion: operators.coreos.com/v1alpha1
+            kind: ServiceBinding
+            metadata:
+                name: binding-request-a-d-s-naming
+            spec:
+                application:
+                    name: nodejs-rest-http-crud-a-d-s-naming
+                    group: apps
+                    version: v1
+                    resource: deployments
+                services:
+                -   group: postgresql.baiju.dev
+                    version: v1alpha1
+                    kind: Database
+                    name: db-demo-a-d-s-naming
+                    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
+            """
+        Then Service Binding "binding-request-a-d-s" is ready
+        And application should be re-deployed
+        And application should be connected to the DB "db-demo-a-d-s"
         And Secret "binding-request-a-d-s" contains "DATABASE_DBNAME" key with value "db-demo-a-d-s"
         And Secret "binding-request-a-d-s" contains "DATABASE_USER" key with value "postgres"
         And Secret "binding-request-a-d-s" contains "DATABASE_PASSWORD" key with value "password"
@@ -213,8 +249,8 @@ Feature: Bind an application to a service
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "binding-request-empty-app" should be changed to "False"
         And jq ".status.conditions[] | select(.type=="InjectionReady").reason" of Service Binding "binding-request-empty-app" should be changed to "EmptyApplication"
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "binding-request-empty-app" should be changed to "True"
-        And Secret "binding-request-empty-app" contains "BACKEND_HOST" key with value "example.common"
-        And Secret "binding-request-empty-app" contains "BACKEND_USERNAME" key with value "foo"
+        And Secret "binding-request-empty-app" contains "HOST" key with value "example.common"
+        And Secret "binding-request-empty-app" contains "USERNAME" key with value "foo"
 
     Scenario: Backend Service status update gets propagated to the binding secret
         Given OLM Operator "backend" is running
@@ -304,9 +340,9 @@ Feature: Bind an application to a service
         Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "binding-request-backend-new-spec" should be changed to "True"
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "binding-request-backend-new-spec" should be changed to "False"
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "binding-request-backend-new-spec" should be changed to "True"
-        And Secret "binding-request-backend-new-spec" contains "BACKEND_HOST" key with value "example.common"
-        And Secret "binding-request-backend-new-spec" contains "BACKEND_PORTS_FTP" key with value "22"
-        And Secret "binding-request-backend-new-spec" contains "BACKEND_PORTS_TCP" key with value "8080"
+        And Secret "binding-request-backend-new-spec" contains "HOST" key with value "example.common"
+        And Secret "binding-request-backend-new-spec" contains "PORTS_FTP" key with value "22"
+        And Secret "binding-request-backend-new-spec" contains "PORTS_TCP" key with value "8080"
 
 
     Scenario: Custom environment variable is injected into the application under the declared name ignoring global and service env prefix
@@ -438,10 +474,10 @@ Feature: Bind an application to a service
         Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "sbr-csv-secret-cm-descriptors" should be changed to "True"
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "sbr-csv-secret-cm-descriptors" should be changed to "False"
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "sbr-csv-secret-cm-descriptors" should be changed to "True"
-        And Secret "sbr-csv-secret-cm-descriptors" contains "BACKSERV_DB_HOST" key with value "172.72.2.0"
-        And Secret "sbr-csv-secret-cm-descriptors" contains "BACKSERV_DB_PORT" key with value "3306"
-        And Secret "sbr-csv-secret-cm-descriptors" contains "BACKSERV_PASSWORD" key with value "secret123"
-        And Secret "sbr-csv-secret-cm-descriptors" contains "BACKSERV_USERNAME" key with value "admin"
+        And Secret "sbr-csv-secret-cm-descriptors" contains "DB_HOST" key with value "172.72.2.0"
+        And Secret "sbr-csv-secret-cm-descriptors" contains "DB_PORT" key with value "3306"
+        And Secret "sbr-csv-secret-cm-descriptors" contains "PASSWORD" key with value "secret123"
+        And Secret "sbr-csv-secret-cm-descriptors" contains "USERNAME" key with value "admin"
 
 
     # This test scenario is disabled until the issue is resolved: https://github.com/redhat-developer/service-binding-operator/issues/656
@@ -515,7 +551,7 @@ Feature: Bind an application to a service
         Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "sbr-csv-attribute" should be changed to "True"
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "sbr-csv-attribute" should be changed to "False"
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "sbr-csv-attribute" should be changed to "True"
-        And Secret "sbr-csv-secret-cm-descriptors" contains "BACKSERV_ENV_SVCNAME" key with value "demo-backserv-cr-1"
+        And Secret "sbr-csv-secret-cm-descriptors" contains "ENV_SVCNAME" key with value "demo-backserv-cr-1"
 
     Scenario: Bind an imported Node.js application to Etcd database
         Given Etcd operator running
@@ -755,4 +791,4 @@ Feature: Bind an application to a service
                     namespace: backend-services
             """
         Then Service Binding "binding-request-cross-ns-service" is ready
-        And The application env var "BACKEND_HOST_CROSS_NS_SERVICE" has value "cross.ns.service.stable.example.com"
+        And The application env var "HOST_CROSS_NS_SERVICE" has value "cross.ns.service.stable.example.com"

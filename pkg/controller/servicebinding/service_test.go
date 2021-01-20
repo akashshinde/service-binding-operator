@@ -215,7 +215,7 @@ func TestBuildOwnerResourceContext(t *testing.T) {
 
 	testCases := []testCase{
 		{
-			inputPath:       "data.username",
+			inputPath:       "data.user",
 			outputPath:      "user",
 			ownerNamePrefix: nil,
 		},
@@ -225,8 +225,8 @@ func TestBuildOwnerResourceContext(t *testing.T) {
 		got, err := buildOwnedResourceContext(
 			f.FakeDynClient(),
 			obj,
-			tc.ownerNamePrefix,
 			nil,
+			false,
 			testutils.BuildTestRESTMapper(),
 			tc.inputPath,
 			tc.outputPath,

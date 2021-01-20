@@ -54,6 +54,7 @@ Feature: Bind a single application to multiple services
         And "nodejs-app" deployment must contain SBR name "binding-request-1"
         And "nodejs-app" deployment must contain SBR name "binding-request-2"
 
+    @name-test
     Scenario: Bind two backend services by creating 1 SBR to a single application
         Given Generic test application "myapp-1sbr" is running
         * OLM Operator "backend" is running
@@ -102,5 +103,5 @@ Feature: Bind a single application to multiple services
                     name: external-db-1sbr
             """
         Then Service Binding "binding-request-1sbr" is ready
-        And The application env var "BACKEND_HOST_INTERNAL_DB" has value "internal.db.stable.example.com"
-        And The application env var "BACKEND_HOST_EXTERNAL_DB" has value "external.db.stable.example.com"
+        And The application env var "HOST_INTERNAL_DB" has value "internal.db.stable.example.com"
+        And The application env var "HOST_EXTERNAL_DB" has value "external.db.stable.example.com"

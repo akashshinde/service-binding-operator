@@ -43,6 +43,8 @@ type ServiceBindingSpec struct {
 	// +optional
 	NamePrefix string `json:"namePrefix,omitempty"`
 
+	NamingStrategy string `json:"namingStrategy"`
+
 	// Custom mappings
 	// +optional
 	Mappings []Mapping `json:"mappings,omitempty"`

@@ -47,5 +47,5 @@ Feature: Unbind an application from a service
 
         When Service binding "binding-request-a-d-u" is deleted
 
-        Then The env var "BACKEND_HOST" is not available to the application
-        And The env var "BACKEND_USERNAME" is not available to the application
+        Then The env var "HOST" is not available to the application
+        And The env var "USERNAME" is not available to the application

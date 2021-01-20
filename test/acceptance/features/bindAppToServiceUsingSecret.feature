@@ -75,7 +75,7 @@ Feature: Bind values from a secret referred in backing service resource
                     resource: deployments
             """
         Then Service Binding "ssa-1" is ready
-        And The application env var "BACKEND_USERNAME" has value "AzureDiamond"
+        And The application env var "USERNAME" has value "AzureDiamond"
 
     Scenario: Inject into app all keys from a secret referred within service resource
         Binding definition is declared on service CRD.
@@ -147,8 +147,8 @@ Feature: Bind values from a secret referred in backing service resource
                     resource: deployments
             """
         Then Service Binding "ssa-2" is ready
-        And The application env var "BACKEND_USERNAME" has value "AzureDiamond"
-        And The application env var "BACKEND_PASSWORD" has value "hunter2"
+        And The application env var "USERNAME" has value "AzureDiamond"
+        And The application env var "PASSWORD" has value "hunter2"
 
     Scenario: Inject into app a key from a secret referred within service resource
         Binding definition is declared via OLM descriptor.
@@ -258,8 +258,8 @@ Feature: Bind values from a secret referred in backing service resource
                     resource: deployments
             """
         Then Service Binding "ssd-1" is ready
-        And The application env var "BACKEND_USERNAME" has value "AzureDiamond"
-        And The application env var "BACKEND_HOST" has value "example.com"
+        And The application env var "USERNAME" has value "AzureDiamond"
+        And The application env var "HOST" has value "example.com"
 
     Scenario: Inject into app all keys from a secret referred within service resource
         Binding definition is declared via OLM descriptor.
@@ -392,8 +392,8 @@ Feature: Bind values from a secret referred in backing service resource
                     resource: deployments
             """
         Then Service Binding "ssd-2" is ready
-        And The application env var "BACKEND_USERNAME" has value "AzureDiamond"
-        And The application env var "BACKEND_PASSWORD" has value "hunter2"
+        And The application env var "USERNAME" has value "AzureDiamond"
+        And The application env var "PASSWORD" has value "hunter2"
 
     Scenario: Inject into app all keys from a secret existing in a same namespace with service and different from the service binding
         Given The Custom Resource Definition is present
@@ -467,8 +467,8 @@ Feature: Bind values from a secret referred in backing service resource
                     resource: deployments
             """
         Then Service Binding "ssa-3" is ready
-        And The application env var "BACKEND_USERNAME" has value "AzureDiamond"
-        And The application env var "BACKEND_PASSWORD" has value "hunter2"
+        And The application env var "USERNAME" has value "AzureDiamond"
+        And The application env var "PASSWORD" has value "hunter2"
 
     # Remove this disable tag once this issue is closed: https://github.com/redhat-developer/service-binding-operator/issues/808
     @disabled
@@ -537,5 +537,5 @@ Feature: Bind values from a secret referred in backing service resource
                 resource: deployments
           """
         Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "sb-inject-secret-data" should be changed to "True"
-        And The application env var "BACKEND_USERNAME" has value "AzureDiamond"
-        And The application env var "BACKEND_PASSWORD" has value "hunter2"
+        And The application env var "USERNAME" has value "AzureDiamond"
+        And The application env var "PASSWORD" has value "hunter2"

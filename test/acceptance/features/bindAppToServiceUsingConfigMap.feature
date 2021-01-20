@@ -78,7 +78,7 @@ Feature: Bind values from a config map referred in backing service resource
                     resource: deployments
             """
         Then Service Binding "cmsa-1" is ready
-        And The application env var "BACKEND_CERTIFICATE" has value "certificate value"
+        And The application env var "CERTIFICATE" has value "certificate value"
 
     Scenario: Inject into app all keys from a config map referred within service resource
         Binding definition is declared on service CRD.
@@ -150,5 +150,5 @@ Feature: Bind values from a config map referred in backing service resource
                     resource: deployments
             """
         Then Service Binding "cmsa-2" is ready
-        And The application env var "BACKEND_CERTIFICATE" has value "certificate value"
-        And The application env var "BACKEND_CERTIFICATE" has value "certificate value"
+        And The application env var "CERTIFICATE" has value "certificate value"
+        And The application env var "CERTIFICATE" has value "certificate value"

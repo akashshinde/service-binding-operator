@@ -143,6 +143,7 @@ func (r *reconciler) Reconcile(request reconcile.Request) (reconcile.Result, err
 		sbr.GetNamespace(),
 		sbr.Spec.Services,
 		sbr.Spec.DetectBindingResources,
+		sbr.Spec.BindAsFiles,
 		r.restMapper,
 	)
 	if err != nil {
@@ -174,7 +175,7 @@ func (r *reconciler) Reconcile(request reconcile.Request) (reconcile.Result, err
 		r.dynClient,
 		sbr.Spec.Mappings,
 		serviceCtxs,
-		sbr.Spec.NamePrefix,
+		sbr.Spec.NamingStrategy,
 	)
 	if err != nil {
 		return requeueError(err)

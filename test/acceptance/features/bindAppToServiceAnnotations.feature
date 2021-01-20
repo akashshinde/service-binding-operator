@@ -62,8 +62,8 @@ Feature: Bind an application to a service using annotations
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "binding-request-backend-a" should be changed to "False"
         And jq ".status.conditions[] | select(.type=="InjectionReady").reason" of Service Binding "binding-request-backend-a" should be changed to "EmptyApplication"
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "binding-request-backend-a" should be changed to "True"
-        And Secret "binding-request-backend-a" contains "BACKEND_READY" key with value "true"
-        And Secret "binding-request-backend-a" contains "BACKEND_HOST" key with value "example.common"
+        And Secret "binding-request-backend-a" contains "READY" key with value "true"
+        And Secret "binding-request-backend-a" contains "HOST" key with value "example.common"
 
     Scenario: Each value in referred map from service resource gets injected into app as separate env variable
         Given Generic test application "rsa-2-service" is running
@@ -131,9 +131,9 @@ Feature: Bind an application to a service using annotations
                     resource: deployments
             """
         Then Service Binding "rsa-2" is ready
-        And The application env var "BACKEND_SPEC_IMAGE" has value "docker.io/postgres"
-        And The application env var "BACKEND_SPEC_IMAGENAME" has value "postgres"
-        And The application env var "BACKEND_SPEC_DBNAME" has value "db-demo"
+        And The application env var "SPEC_IMAGE" has value "docker.io/postgres"
+        And The application env var "SPEC_IMAGENAME" has value "postgres"
+        And The application env var "SPEC_DBNAME" has value "db-demo"
 
 
     Scenario: Each value in referred slice of strings from service resource gets injected into app as separate env variable
@@ -193,9 +193,9 @@ Feature: Bind an application to a service using annotations
                     resource: deployments
             """
         Then Service Binding "slos-binding" is ready
-        And The application env var "BACKEND_TAGS_0" has value "knowledge"
-        And The application env var "BACKEND_TAGS_1" has value "is"
-        And The application env var "BACKEND_TAGS_2" has value "power"
+        And The application env var "TAGS_0" has value "knowledge"
+        And The application env var "TAGS_1" has value "is"
+        And The application env var "TAGS_2" has value "power"
 
     Scenario: Values extracted from each map by a given key in referred slice of maps from service resource gets injected into app as separate env variable
         Given Generic test application "slom-to-slos-app" is running
@@ -257,9 +257,9 @@ Feature: Bind an application to a service using annotations
                     resource: deployments
             """
         Then Service Binding "slom-to-slos-binding" is ready
-        And The application env var "BACKEND_URL_0" has value "primary.example.com"
-        And The application env var "BACKEND_URL_1" has value "secondary.example.com"
-        And The application env var "BACKEND_URL_2" has value "black-hole.example.com"
+        And The application env var "URL_0" has value "primary.example.com"
+        And The application env var "URL_1" has value "secondary.example.com"
+        And The application env var "URL_2" has value "black-hole.example.com"
 
     Scenario: Each value in referred slice of maps from service resource gets injected into app as separate env variable
         Given Generic test application "slom-app" is running
@@ -321,9 +321,9 @@ Feature: Bind an application to a service using annotations
                     resource: deployments
             """
         Then Service Binding "slom-binding" is ready
-        And The application env var "BACKEND_WEBARROWS_PRIMARY" has value "primary.example.com"
-        And The application env var "BACKEND_WEBARROWS_SECONDARY" has value "secondary.example.com"
-        And The application env var "BACKEND_WEBARROWS_404" has value "black-hole.example.com"
+        And The application env var "WEBARROWS_PRIMARY" has value "primary.example.com"
+        And The application env var "WEBARROWS_SECONDARY" has value "secondary.example.com"
+        And The application env var "WEBARROWS_404" has value "black-hole.example.com"
 
     Scenario: Backend Service metadata annotations update for service bindings gets propagated to the binding secret
         Given OLM Operator "backend" is running
@@ -353,8 +353,8 @@ Feature: Bind an application to a service using annotations
                     kind: Backend
                     name: backend-demo-2
             """
-        And Secret "binding-request-backend-ann-sb" contains "BACKEND_HOST" key with value "example.com"
-        And Secret "binding-request-backend-ann-sb" does not contain "BACKEND_READY"
+        And Secret "binding-request-backend-ann-sb" contains "HOST" key with value "example.com"
+        And Secret "binding-request-backend-ann-sb" does not contain "READY"
         # Backend metadata.annotations for service binding is updated
         When The Custom Resource is present
             """
@@ -374,8 +374,8 @@ Feature: Bind an application to a service using annotations
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "binding-request-backend-ann-sb" should be changed to "False"
         And jq ".status.conditions[] | select(.type=="InjectionReady").reason" of Service Binding "binding-request-backend-ann-sb" should be changed to "EmptyApplication"
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "binding-request-backend-ann-sb" should be changed to "True"
-        And Secret "binding-request-backend-ann-sb" contains "BACKEND_READY" key with value "true"
-        And Secret "binding-request-backend-ann-sb" contains "BACKEND_HOST" key with value "example.com"
+        And Secret "binding-request-backend-ann-sb" contains "READY" key with value "true"
+        And Secret "binding-request-backend-ann-sb" contains "HOST" key with value "example.com"
 
 
     @negative

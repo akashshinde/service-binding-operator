@@ -1,6 +1,7 @@
 package servicebinding
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -136,56 +137,71 @@ func TestBuildServiceEnvVars(t *testing.T) {
 		ctx              *serviceContext
 		globalNamePrefix string
 		expected         map[string]string
+		globalStrategy   string
+		err              error
 	}
 
 	cr := mocks.UnstructuredDatabaseCRMock("namespace", "name")
 
-	serviceNamePrefix := "serviceprefix"
-	emptyString := ""
-	namingStrategy := "{{.service.kind | lower}}_custom_env_{{.name | upper}}"
+	noneNamingStrategy := "none"
+	bindAsFilesNaming := "bindAsFiles"
+	globalNameStrategy := "global_{{.name | upper}}_strategy"
 
 	testCases := []testCase{
 		{
-			globalNamePrefix: "",
+			globalStrategy: globalNameStrategy,
 			ctx: &serviceContext{
-				namePrefix: &emptyString,
+				service: cr,
+				envVars: map[string]interface{}{
+					"apiKey": map[string]interface{}{
+						"key": "my-secret-key",
+					},
+				},
+			},
+			expected: map[string]string{
+				"global_APIKEY_KEY_strategy": "my-secret-key",
+			},
+		},
+		{
+			globalStrategy: globalNameStrategy,
+			ctx: &serviceContext{
+				service:        cr,
+				namingStrategy: &noneNamingStrategy,
+				envVars: map[string]interface{}{
+					"apiKey": map[string]interface{}{
+						"key": "my-secret-key",
+					},
+				},
+			},
+			expected: map[string]string{
+				"APIKEY_KEY": "my-secret-key",
+			},
+		},
+		{
+			ctx: &serviceContext{
+				service: cr,
+				envVars: map[string]interface{}{
+					"apiKey": map[string]interface{}{
+						"key": "my-secret-key",
+					},
+				},
+			},
+			expected: map[string]string{
+				"DATABASE_APIKEY_KEY": "my-secret-key",
+			},
+		},
+		{
+			ctx: &serviceContext{
 				envVars: map[string]interface{}{
 					"apiKey": "my-secret-key",
 				},
 			},
-			expected: map[string]string{
-				"APIKEY": "my-secret-key",
-			},
+			expected: nil,
+			err:      errors.New("template: naming:1:19: executing \"naming\" at <upper>: invalid value; expected string"),
 		},
 		{
-			globalNamePrefix: "globalprefix",
 			ctx: &serviceContext{
-				namePrefix: &emptyString,
-				envVars: map[string]interface{}{
-					"apiKey": "my-secret-key",
-				},
-			},
-			expected: map[string]string{
-				"GLOBALPREFIX_APIKEY": "my-secret-key",
-			},
-		},
-		{
-			globalNamePrefix: "globalprefix",
-			ctx: &serviceContext{
-				namePrefix: &serviceNamePrefix,
-				envVars: map[string]interface{}{
-					"apiKey": "my-secret-key",
-				},
-			},
-			expected: map[string]string{
-				"GLOBALPREFIX_SERVICEPREFIX_APIKEY": "my-secret-key",
-			},
-		},
-		{
-			globalNamePrefix: "",
-			ctx: &serviceContext{
-				service:    cr,
-				namePrefix: nil,
+				service: cr,
 				envVars: map[string]interface{}{
 					"apiKey": "my-secret-key",
 				},
@@ -195,36 +211,36 @@ func TestBuildServiceEnvVars(t *testing.T) {
 			},
 		},
 		{
-			globalNamePrefix: "",
 			ctx: &serviceContext{
-				namePrefix: &serviceNamePrefix,
-				envVars: map[string]interface{}{
-					"apiKey": "my-secret-key",
-				},
-			},
-			expected: map[string]string{
-				"SERVICEPREFIX_APIKEY": "my-secret-key",
-			},
-		},
-		{
-			globalNamePrefix: "",
-			ctx: &serviceContext{
-				namePrefix:     &emptyString,
-				namingStrategy: &namingStrategy,
+				namingStrategy: &noneNamingStrategy,
 				service:        cr,
 				envVars: map[string]interface{}{
 					"apiKey": "my-secret-key",
 				},
 			},
 			expected: map[string]string{
-				"database_custom_env_APIKEY": "my-secret-key",
+				"APIKEY": "my-secret-key",
+			},
+		},
+		{
+			ctx: &serviceContext{
+				namingStrategy: &bindAsFilesNaming,
+				service:        cr,
+				envVars: map[string]interface{}{
+					"apiKey": "my-secret-key",
+				},
+			},
+			expected: map[string]string{
+				"apikey": "my-secret-key",
 			},
 		},
 	}
 
 	for _, tc := range testCases {
-		actual, err := buildServiceEnvVars(tc.ctx, tc.globalNamePrefix)
-		require.NoError(t, err)
+		actual, err := buildServiceEnvVars(tc.ctx, tc.globalStrategy)
+		if err != nil {
+			require.EqualError(t, err, tc.err.Error())
+		}
 		require.Equal(t, tc.expected, actual)
 	}
 }

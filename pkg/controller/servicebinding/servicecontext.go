@@ -1,7 +1,6 @@
 package servicebinding
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/imdario/mergo"
@@ -23,9 +22,9 @@ type serviceContext struct {
 	service *unstructured.Unstructured
 	// envVars contains the service's contributed environment variables.
 	envVars map[string]interface{}
-	// namePrefix indicates the prefix to use in environment variables.
-	namePrefix     *string
+	// namingStrategy contains name template used to prepare custom env variable key.
 	namingStrategy *string
+	bindAsFiles    bool
 	// Id indicates a name the service can be referred in custom environment variables.
 	id *string
 }
@@ -57,6 +56,7 @@ func buildServiceContexts(
 	defaultNs string,
 	selectors []v1alpha1.Service,
 	includeServiceOwnedResources *bool,
+	isBindAsFiles bool,
 	restMapper meta.RESTMapper,
 ) (serviceContextList, error) {
 	svcCtxs := make(serviceContextList, 0)
@@ -66,7 +66,7 @@ SELECTORS:
 		ns := stringValueOrDefault(s.Namespace, defaultNs)
 		gvk := schema.GroupVersionKind{Kind: s.Kind, Version: s.Version, Group: s.Group}
 		svcCtx, err := buildServiceContext(logger.WithName("buildServiceContexts"), client, ns, gvk,
-			s.Name, s.NamingStrategy, s.NamePrefix, restMapper, s.Id)
+			s.Name, s.NamingStrategy, isBindAsFiles, restMapper, s.Id)
 
 		if err != nil {
 			// best effort approach; should not break in common cases such as a unknown annotation
@@ -82,10 +82,6 @@ SELECTORS:
 
 		if includeServiceOwnedResources != nil && *includeServiceOwnedResources {
 			// use the selector's kind as owned resources environment variable prefix
-			svcNamePrefix := svcCtx.namePrefix
-			if svcNamePrefix == nil {
-				svcNamePrefix = &s.Kind
-			}
 			ownedResourcesCtxs, err := findOwnedResourcesCtxs(
 				logger,
 				client,
@@ -93,8 +89,8 @@ SELECTORS:
 				svcCtx.service.GetName(),
 				svcCtx.service.GetUID(),
 				gvk,
-				svcNamePrefix,
 				s.NamingStrategy,
+				isBindAsFiles,
 				restMapper,
 			)
 			if err != nil {
@@ -114,8 +110,8 @@ func findOwnedResourcesCtxs(
 	name string,
 	uid types.UID,
 	gvk schema.GroupVersionKind,
-	namePrefix *string,
 	namingStrategy *string,
+	isBindAsFiles bool,
 	restMapper meta.RESTMapper,
 ) (serviceContextList, error) {
 	ownedResources, err := getOwnedResources(
@@ -133,8 +129,8 @@ func findOwnedResourcesCtxs(
 	return buildOwnedResourceContexts(
 		client,
 		ownedResources,
-		namePrefix,
 		namingStrategy,
+		isBindAsFiles,
 		restMapper,
 	)
 }
@@ -197,7 +193,7 @@ func buildServiceContext(
 	gvk schema.GroupVersionKind,
 	name string,
 	namingStrategy *string,
-	namePrefix *string,
+	bindAsFiles bool,
 	restMapper meta.RESTMapper,
 	id *string,
 ) (*serviceContext, error) {
@@ -254,7 +250,6 @@ func buildServiceContext(
 		v := anns[k]
 		// runHandler modifies 'outputObj', and 'envVars' in place.
 		err := runHandler(client, obj, outputObj, k, v, envVars, restMapper)
-		fmt.Printf("Current envVars %s", envVars)
 		if err != nil {
 			logger.Debug("Failed executing runHandler in envars", "Error", err)
 		}
@@ -263,8 +258,8 @@ func buildServiceContext(
 	serviceCtx := &serviceContext{
 		service:        outputObj,
 		envVars:        envVars,
-		namePrefix:     namePrefix,
 		namingStrategy: namingStrategy,
+		bindAsFiles:    bindAsFiles,
 		id:             id,
 	}
 

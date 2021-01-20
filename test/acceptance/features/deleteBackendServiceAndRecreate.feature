@@ -6,7 +6,7 @@ Feature: Reconcile when BackingService CR got deleted and recreated
     Background:
         Given Namespace [TEST_NAMESPACE] is used
         * Service Binding Operator is running
-    Scenario: Reconcile when BackingService CR got deleted and recreated 
+    Scenario: Reconcile when BackingService CR got deleted and recreated
         Given OLM Operator "backend" is running
         And Generic test application "ssa-3" is running
         And The Custom Resource Definition is present
@@ -76,8 +76,8 @@ Feature: Reconcile when BackingService CR got deleted and recreated
         Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "ssa-3" should be changed to "True"
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "ssa-3" should be changed to "True"
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "ssa-3" should be changed to "True"
-        And The application env var "BACKEND_USERNAME" has value "AzureDiamond"
-        And The application env var "BACKEND_PASSWORD" has value "hunter"
+        And The application env var "USERNAME" has value "AzureDiamond"
+        And The application env var "PASSWORD" has value "hunter"
 	    When BackingService is deleted
             """
             apiVersion: stable.example.com/v1
@@ -119,6 +119,6 @@ Feature: Reconcile when BackingService CR got deleted and recreated
         Then jq ".status.conditions[] | select(.type=="CollectionReady").status" of Service Binding "ssa-3" should be changed to "True"
         And jq ".status.conditions[] | select(.type=="InjectionReady").status" of Service Binding "ssa-3" should be changed to "True"
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "ssa-3" should be changed to "True"
-        And The application env var "BACKEND_USERNAME" has value "AzureDiamond2"
-        And The application env var "BACKEND_PASSWORD" has value "hunter2"
+        And The application env var "USERNAME" has value "AzureDiamond2"
+        And The application env var "PASSWORD" has value "hunter2"
 
