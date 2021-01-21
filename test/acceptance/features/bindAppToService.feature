@@ -539,7 +539,7 @@ Feature: Bind an application to a service
                 version: v1
                 resource: deployments
                 name: node-todo-git
-                namingStrategy: "EtcdCluster_{{ .name | upper }}"
+                namingStrategy: "ETCDCLUSTER_{{ .name | upper }}"
               services:
                 - group: etcd.database.coreos.com
                   version: v1beta2
