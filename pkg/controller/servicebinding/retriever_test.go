@@ -1,7 +1,6 @@
 package servicebinding
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -135,10 +134,8 @@ func TestBuildServiceEnvVars(t *testing.T) {
 
 	type testCase struct {
 		ctx              *serviceContext
-		globalNamePrefix string
 		expected         map[string]string
 		globalStrategy   string
-		err              error
 	}
 
 	cr := mocks.UnstructuredDatabaseCRMock("namespace", "name")
@@ -146,6 +143,7 @@ func TestBuildServiceEnvVars(t *testing.T) {
 	noneNamingStrategy := "none"
 	bindAsFilesNaming := "bindAsFiles"
 	globalNameStrategy := "global_{{.name | upper}}_strategy"
+	customNamingStrategy := "CUSTOM_{{ .service.kind | upper }}_{{ .name | upper }}"
 
 	testCases := []testCase{
 		{
@@ -187,7 +185,7 @@ func TestBuildServiceEnvVars(t *testing.T) {
 				},
 			},
 			expected: map[string]string{
-				"DATABASE_APIKEY_KEY": "my-secret-key",
+				"APIKEY_KEY": "my-secret-key",
 			},
 		},
 		{
@@ -196,8 +194,9 @@ func TestBuildServiceEnvVars(t *testing.T) {
 					"apiKey": "my-secret-key",
 				},
 			},
-			expected: nil,
-			err:      errors.New("template: naming:1:19: executing \"naming\" at <upper>: invalid value; expected string"),
+			expected: map[string]string{
+				"APIKEY": "my-secret-key",
+			},
 		},
 		{
 			ctx: &serviceContext{
@@ -207,7 +206,7 @@ func TestBuildServiceEnvVars(t *testing.T) {
 				},
 			},
 			expected: map[string]string{
-				"DATABASE_APIKEY": "my-secret-key",
+				"APIKEY": "my-secret-key",
 			},
 		},
 		{
@@ -234,13 +233,23 @@ func TestBuildServiceEnvVars(t *testing.T) {
 				"apikey": "my-secret-key",
 			},
 		},
+		{
+			ctx: &serviceContext{
+				namingStrategy: &customNamingStrategy,
+				service:        cr,
+				envVars: map[string]interface{}{
+					"apiKey": "my-secret-key",
+				},
+			},
+			expected: map[string]string{
+				"CUSTOM_DATABASE_APIKEY": "my-secret-key",
+			},
+		},
 	}
 
 	for _, tc := range testCases {
 		actual, err := buildServiceEnvVars(tc.ctx, tc.globalStrategy)
-		if err != nil {
-			require.EqualError(t, err, tc.err.Error())
-		}
+		require.NoError(t, err)
 		require.Equal(t, tc.expected, actual)
 	}
 }

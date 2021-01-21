@@ -42,8 +42,8 @@ Feature: Unbind an application from a service
                     name: example-backend
                     id: backend
             """
-        * The application env var "BACKEND_HOST" has value "example.com"
-        * The application env var "BACKEND_USERNAME" has value "foo"
+        * The application env var "HOST" has value "example.com"
+        * The application env var "USERNAME" has value "foo"
 
         When Service binding "binding-request-a-d-u" is deleted
 

@@ -4,7 +4,7 @@ import "strings"
 
 var Strategies = map[string]string{
 	"none":        "{{ .name }}",
-	"default":     "{{ .service.kind | upper }}_{{ .name | upper }}",
+	"default":     "{{ .name | upper }}",
 	"bindAsFiles": "{{ .name | lower }}",
 }
 

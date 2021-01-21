@@ -239,7 +239,7 @@ func buildOwnedResourceContext(
 func buildOwnedResourceContexts(
 	client dynamic.Interface,
 	objs []*unstructured.Unstructured,
-	ownerNamePrefix *string,
+	nameStrategy *string,
 	isBindAsFiles bool,
 	restMapper meta.RESTMapper,
 ) ([]*serviceContext, error) {
@@ -253,7 +253,7 @@ func buildOwnedResourceContexts(
 			svcCtx, err := buildOwnedResourceContext(
 				client,
 				obj,
-				ownerNamePrefix,
+				nameStrategy,
 				isBindAsFiles,
 				restMapper,
 				br.inputPath,

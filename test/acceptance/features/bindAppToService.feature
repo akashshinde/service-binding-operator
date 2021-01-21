@@ -30,42 +30,7 @@ Feature: Bind an application to a service
                     version: v1alpha1
                     kind: Database
                     name: db-demo-a-d-s
-            """
-        Then Service Binding "binding-request-a-d-s" is ready
-        And application should be re-deployed
-        And application should be connected to the DB "db-demo-a-d-s"
-        And Secret "binding-request-a-d-s" contains "DBNAME" key with value "db-demo-a-d-s"
-        And Secret "binding-request-a-d-s" contains "USER" key with value "postgres"
-        And Secret "binding-request-a-d-s" contains "PASSWORD" key with value "password"
-        And Secret "binding-request-a-d-s" contains "DB_PASSWORD" key with value "password"
-        And Secret "binding-request-a-d-s" contains "DB_NAME" key with value "db-demo-a-d-s"
-        And Secret "binding-request-a-d-s" contains "DB_PORT" key with value "5432"
-        And Secret "binding-request-a-d-s" contains "DB_USER" key with value "postgres"
-        And Secret "binding-request-a-d-s" contains "DB_HOST" key with dynamic IP addess as the value
-        And Secret "binding-request-a-d-s" contains "DBCONNECTIONIP" key with dynamic IP addess as the value
-        And Secret "binding-request-a-d-s" contains "DBCONNECTIONPORT" key with value "5432"
-
-    Scenario: Bind an imported Node.js application to PostgreSQL database in the following order: Application, DB and Service Binding and use custom naming strategy
-        Given Imported Nodejs application "nodejs-rest-http-crud-a-d-s-naming" is running
-        * DB "db-demo-a-d-s-naming" is running
-        When Service Binding is applied
-            """
-            apiVersion: operators.coreos.com/v1alpha1
-            kind: ServiceBinding
-            metadata:
-                name: binding-request-a-d-s-naming
-            spec:
-                application:
-                    name: nodejs-rest-http-crud-a-d-s-naming
-                    group: apps
-                    version: v1
-                    resource: deployments
-                services:
-                -   group: postgresql.baiju.dev
-                    version: v1alpha1
-                    kind: Database
-                    name: db-demo-a-d-s-naming
-                    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
+                    namingStrategy: "{{ .service.kind | upper }}_{{ .name | upper }}"
             """
         Then Service Binding "binding-request-a-d-s" is ready
         And application should be re-deployed
@@ -100,6 +65,7 @@ Feature: Bind an application to a service
                     version: v1alpha1
                     kind: Database
                     name: db-demo-a-s-d
+                    namingStrategy: "{{ .service.kind | upper }}_{{ .name | upper }}"
             """
         When DB "db-demo-a-s-d" is running
         Then Service Binding "binding-request-a-s-d" is ready
@@ -127,6 +93,7 @@ Feature: Bind an application to a service
                     version: v1alpha1
                     kind: Database
                     name: db-demo-d-s-a
+                    namingStrategy: "{{ .service.kind | upper }}_{{ .name | upper }}"
             """
         When Imported Nodejs application "nodejs-rest-http-crud-d-s-a" is running
         Then Service Binding "binding-request-d-s-a" is ready
@@ -154,6 +121,7 @@ Feature: Bind an application to a service
                     version: v1alpha1
                     kind: Database
                     name: db-demo-s-a-d
+                    namingStrategy: "{{ .service.kind | upper }}_{{ .name | upper }}"
             """
         * Imported Nodejs application "nodejs-rest-http-crud-s-a-d" is running
         When DB "db-demo-s-a-d" is running
@@ -181,6 +149,7 @@ Feature: Bind an application to a service
                     version: v1alpha1
                     kind: Database
                     name: db-demo-s-d-a
+                    namingStrategy: "{{ .service.kind | upper }}_{{ .name | upper }}"
             """
         * DB "db-demo-s-d-a" is running
         When Imported Nodejs application "nodejs-rest-http-crud-s-d-a" is running
@@ -553,6 +522,7 @@ Feature: Bind an application to a service
         And jq ".status.conditions[] | select(.type=="Ready").status" of Service Binding "sbr-csv-attribute" should be changed to "True"
         And Secret "sbr-csv-secret-cm-descriptors" contains "ENV_SVCNAME" key with value "demo-backserv-cr-1"
 
+    @etcd
     Scenario: Bind an imported Node.js application to Etcd database
         Given Etcd operator running
         * Etcd cluster "etcd-cluster-example" is running
@@ -569,6 +539,7 @@ Feature: Bind an application to a service
                 version: v1
                 resource: deployments
                 name: node-todo-git
+                namingStrategy: "EtcdCluster_{{ .name | upper }}"
               services:
                 - group: etcd.database.coreos.com
                   version: v1beta2

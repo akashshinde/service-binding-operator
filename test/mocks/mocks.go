@@ -436,16 +436,16 @@ func ServiceBindingMock(
 	matchLabels map[string]string,
 ) *v1alpha1.ServiceBinding {
 	var services []v1alpha1.Service
+	nameStrategy := "{{ .name | upper }}_CUSTOM_{{ .service.kind | upper }}"
 	if backingServiceResourceRef == "" {
 		services = []v1alpha1.Service{}
 	} else {
-		namingStrategy := "{{.name | title}}"
 		services = []v1alpha1.Service{
 			{
 				GroupVersionKind:     metav1.GroupVersionKind{Group: CRDName, Version: CRDVersion, Kind: CRDKind},
 				LocalObjectReference: corev1.LocalObjectReference{Name: backingServiceResourceRef},
 				Namespace:            backingServiceNamespace,
-				NamingStrategy:       &namingStrategy,
+				NamingStrategy: &nameStrategy,
 			},
 		}
 	}

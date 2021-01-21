@@ -70,7 +70,6 @@ Feature: Bind values from a config map referred in backing service resource
                     version: v1
                     kind: Backend
                     name: cmsa-1-service
-                    naming-strategy: {{.service.kind | lower}}_{{.name | upper}}
                 application:
                     name: cmsa-1
                     group: apps

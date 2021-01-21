@@ -39,10 +39,9 @@ type ServiceBindingSpec struct {
 	// +optional
 	MountPath string `json:"mountPath,omitempty"`
 
-	// NamePrefix is the prefix for environment variables or file name
-	// +optional
-	NamePrefix string `json:"namePrefix,omitempty"`
 
+	// NamingStrategy defines custom string template for preparting env variable names.
+	// +optional
 	NamingStrategy string `json:"namingStrategy"`
 
 	// Custom mappings
@@ -99,7 +98,7 @@ type Service struct {
 	// +optional
 	Namespace      *string `json:"namespace,omitempty"`
 	NamePrefix     *string `json:"namePrefix,omitempty"`
-	NamingStrategy *string `json:"naming_strategy"`
+	NamingStrategy *string `json:"namingStrategy"`
 	Id             *string `json:"id,omitempty"`
 }
 
