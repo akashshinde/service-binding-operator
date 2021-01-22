@@ -147,6 +147,7 @@ spec:
     kind: Database
     name: db-demo
     namespace: service-binding-demo-2
+    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
 EOD
 ```
 

@@ -54,7 +54,6 @@ Feature: Bind a single application to multiple services
         And "nodejs-app" deployment must contain SBR name "binding-request-1"
         And "nodejs-app" deployment must contain SBR name "binding-request-2"
 
-    @name-test
     Scenario: Bind two backend services by creating 1 SBR to a single application
         Given Generic test application "myapp-1sbr" is running
         * OLM Operator "backend" is running

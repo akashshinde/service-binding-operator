@@ -133,6 +133,7 @@ spec:
     group: apps
     version: v1
     resource: deployments
+    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
   services:
   - group: postgresql.baiju.dev
     version: v1alpha1

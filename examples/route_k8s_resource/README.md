@@ -57,7 +57,7 @@ deployment.apps/hello-app created
 We can verify that the app is running by checking the Deployment is available:
 
 ``` shell
-$ kubectl get deployment hello-app -n service-binding-demo -o wide                             
+$ kubectl get deployment hello-app -n service-binding-demo -o wide
 NAME        READY   UP-TO-DATE   AVAILABLE   AGE    CONTAINERS        IMAGES                      SELECTOR
 hello-app   1/1     1            1           3m2s   hello-openshift   openshift/hello-openshift   app=hello-app
 ```
@@ -114,6 +114,7 @@ spec:
       kind: Route # <--- not NECESSARILY a CR
       name: example
       namespace: service-binding-demo
+      namingStrategy: '{{ .service.name | upper }}_{{ .name | upper }}'
 EOD
 ```
 

@@ -168,6 +168,7 @@ spec:
     version: v1alpha1
     kind: Database
     name: db-demo
+    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
     id: knav
   mappings:
     - name: JDBC_URL

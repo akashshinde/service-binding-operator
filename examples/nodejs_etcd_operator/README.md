@@ -75,6 +75,7 @@ spec:
     version: v1beta2
     kind: EtcdCluster
     name: etcd-cluster-example
+    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
   detectBindingResources: true
 EOD
 ```

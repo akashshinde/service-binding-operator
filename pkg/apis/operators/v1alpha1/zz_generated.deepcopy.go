@@ -114,11 +114,6 @@ func (in *Service) DeepCopyInto(out *Service) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.NamePrefix != nil {
-		in, out := &in.NamePrefix, &out.NamePrefix
-		*out = new(string)
-		**out = **in
-	}
 	if in.NamingStrategy != nil {
 		in, out := &in.NamingStrategy, &out.NamingStrategy
 		*out = new(string)

@@ -139,6 +139,7 @@ spec:
     version: v1alpha1
     kind: Database
     name: db-demo
+    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
   - group: etcd.database.coreos.com
     version: v1beta2
     kind: EtcdCluster

@@ -202,6 +202,7 @@ spec:
     version: v1alpha1
     kind: Binding
     name: mytranslator-binding
+    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
     id: tr
   application:
     name: language-translator-nodejs

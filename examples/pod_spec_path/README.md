@@ -95,7 +95,6 @@ kind: ServiceBinding
 metadata:
     name: binding-request-sample
 spec:
-    namePrefix: qiye111
     application:
         name: demo-appconfig
         group: stable.example.com
@@ -109,7 +108,7 @@ spec:
         kind: Database
         name: db-demo
         id: zzz
-        namePrefix: qiye
+        namingStrategy: 'qiye111_qiye11_{{ .name | upper }}'
 EOD
 ```
 

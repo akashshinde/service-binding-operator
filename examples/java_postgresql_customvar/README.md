@@ -199,6 +199,7 @@ spec:
     version: v1alpha1
     kind: Database
     name: db-demo
+    namingStrategy: '{{ .service.kind | upper }}_{{ .name | upper }}'
     id: postgresDB
   mappings:
   - name: JDBC_URL

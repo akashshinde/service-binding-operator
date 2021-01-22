@@ -39,7 +39,6 @@ type ServiceBindingSpec struct {
 	// +optional
 	MountPath string `json:"mountPath,omitempty"`
 
-
 	// NamingStrategy defines custom string template for preparting env variable names.
 	// +optional
 	NamingStrategy string `json:"namingStrategy"`
@@ -97,7 +96,6 @@ type Service struct {
 
 	// +optional
 	Namespace      *string `json:"namespace,omitempty"`
-	NamePrefix     *string `json:"namePrefix,omitempty"`
 	NamingStrategy *string `json:"namingStrategy"`
 	Id             *string `json:"id,omitempty"`
 }

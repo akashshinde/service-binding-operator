@@ -324,7 +324,6 @@ Feature: Bind an application to a service
             metadata:
                 name: binding-request-a-d-c
             spec:
-                namePrefix: REDHAT
                 application:
                     name: nodejs-rest-http-crud-a-d-c
                     group: apps
@@ -336,7 +335,6 @@ Feature: Bind an application to a service
                     kind: Database
                     name: db-demo-a-d-c
                     id: postgresDB
-                    namePrefix: DEVTOOLS
                 mappings:
                     - name: SOME_KEY
                       value: 'SOME_VALUE:{{ .postgresDB.status.dbConnectionPort }}:{{ .postgresDB.status.dbName }}'
